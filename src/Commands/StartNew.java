@@ -5,6 +5,10 @@
  */
 package Commands;
 
+import Database.Database;
+import java.sql.SQLException;
+import life.GameLoop;
+
 /**
  *
  * @author Eugene
@@ -12,8 +16,10 @@ package Commands;
 public class StartNew extends Command{
     
     @Override
-    public Object DoAction(Object[] params)
+    public Object DoAction(Object[] params) throws ClassNotFoundException, SQLException, InterruptedException
     {
+        GameLoop gameLoop = new GameLoop(new Database());
+        gameLoop.run();
         return null;
     }
 }

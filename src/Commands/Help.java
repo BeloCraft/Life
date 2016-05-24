@@ -34,7 +34,8 @@ public class Help extends Command
         System.out.println(commands[2] + " - Change password (ex. changePSWD lastPSWD newPSWD)");
         System.out.println(commands[3] + " - Set password (ex. setPSWD Password");
         System.out.println(commands[4] + " - Continue last session");
-        System.out.println(commands[5] + " - Get help");
+        System.out.println(commands[5] + " - Create base table in bd");
+        System.out.println(commands[6] + " - Get help");
         return null;
     }
 }

@@ -23,7 +23,7 @@ public class Database {
     private final Connection connection;
     private Statement statement;
 
-    Database() throws ClassNotFoundException, SQLException {
+    public Database() throws ClassNotFoundException, SQLException {
 
         String cfg = "";
         File f = new File("bd.cfg");
@@ -53,7 +53,7 @@ public class Database {
         this.statement = connection.createStatement();
     }
 
-    public ResultSet sendQuerry(String querry) throws SQLException
+    public ResultSet sendQuerryWithResult(String querry) throws SQLException
     {
         ResultSet rs = statement.executeQuery(querry);
         return rs;
@@ -64,8 +64,13 @@ public class Database {
         statement.executeUpdate(querry);
     }
     
-    public void sendAnyQuerry(String querry) throws SQLException
+    public void sendQuerry(String querry) throws SQLException
     {
         statement.execute(querry);
     }
+    
+    public void closeConnection() throws SQLException{
+        statement.close();
+        connection.close();
+    }          
 }

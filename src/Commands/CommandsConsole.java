@@ -17,6 +17,7 @@ public class CommandsConsole {
     private final String setPassword = "setPSWD";
     private final String continueTeach = "continue";
     private final String help = "?";
+    private final String initalBd = "initBd";
     
     public Command getCommand(String command)
     {
@@ -34,8 +35,10 @@ public class CommandsConsole {
                 return new ContinueTeach();
             case help:
                 String[] commands = {startNew,erase,changePassword,setPassword,
-                continueTeach,help};
+                continueTeach,initalBd,help};
                 return new Help(commands);
+            case initalBd:
+                return new InitalBd();
         }        
         return null;
     }
