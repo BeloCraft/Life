@@ -10,3 +10,11 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+nbproject/build-impl.xml
+nbproject/genfiles.properties
+nbproject/private/private.xml
+*.properties
+nbproject/project.xml
+build/classes/.netbeans_automatic_build
+*.netbeans_update_resources
+manifest.mf
