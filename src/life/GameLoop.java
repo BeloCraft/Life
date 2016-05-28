@@ -9,6 +9,11 @@ import Database.Database;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -21,15 +26,15 @@ import java.util.logging.Logger;
 public class GameLoop {
     
     private final Database database;
-    private Boolean stop;    
+    private Boolean stop;            
     
-    public GameLoop (Database database)
+    public GameLoop (Database database) throws SocketException
     {
         this.stop = false;
-        this.database = database;
+        this.database = database;        
     }
     
-    public void run() throws InterruptedException, ClassNotFoundException, SQLException
+    public void run() throws InterruptedException, ClassNotFoundException, SQLException, IOException
     {               
         Thread inputs = new Thread(() -> {
                 while(!stop)
@@ -49,8 +54,11 @@ public class GameLoop {
                 
         Rules rules = new Rules();
         
+        Database dbhistory = new Database();
+        
         while(!stop)
         {
+            String reciveData = "";
             ResultSet sendQuerryWithResult = database.sendQuerryWithResult("SELECT * FROM cells");
             while(sendQuerryWithResult.next())
             {
@@ -62,8 +70,14 @@ public class GameLoop {
                 int n = sendQuerryWithResult.getInt("n");
                 
                 rules.generateMap(database, type, hungry, older, x, y, n);
-                rules.lifeCell(database, type, hungry, older, x, y, n);
-            }
+                rules.lifeCell(database, type, hungry, older, x, y, n);       
+                
+                reciveData += type + ":" + hungry + ":" + older + ":" + x + ":"
+                        + y + ":" + n + ";";
+                
+                dbhistory.sendQuerry("INSERT INTO history VALUES ('"+type+"',"+x+","
+                        +y+ ","+n+")");
+            }                                                   
         }
     }
 }
