@@ -5,6 +5,9 @@
  */
 package Commands;
 
+import Database.Database;
+import java.sql.SQLException;
+
 /**
  *
  * @author Eugene
@@ -12,8 +15,11 @@ package Commands;
 public class SetPassword extends Command{
     
     @Override
-    public Object DoAction(Object[] params)
+    public Object DoAction(Object[] params) throws ClassNotFoundException, SQLException
     {
-        return null;
+        Database database = new Database();
+        database.sendQuerry("DELETE FROM Pas WHERE 1=1");
+        database.sendQuerry("INSERT INTO Pas VALUES ('"+params[0].toString()+"')");
+        return true;
     }
 }

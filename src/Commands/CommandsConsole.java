@@ -12,8 +12,7 @@ package Commands;
 public class CommandsConsole {
  
     private final String startNew = "new";
-    private final String erase = "clear";
-    private final String changePassword = "changePSWD";
+    private final String erase = "clear";    
     private final String setPassword = "setPSWD";
     private final String continueTeach = "continue";
     private final String help = "?";
@@ -26,15 +25,13 @@ public class CommandsConsole {
             case startNew:
                 return new StartNew();
             case erase:
-                return new Erase();
-            case changePassword:
-                return new ChangePassword();
+                return new Erase();            
             case setPassword:
                 return new SetPassword();
             case continueTeach:
                 return new ContinueTeach();
             case help:
-                String[] commands = {startNew,erase,changePassword,setPassword,
+                String[] commands = {startNew,erase,setPassword,
                 continueTeach,initalBd,help};
                 return new Help(commands);
             case initalBd:

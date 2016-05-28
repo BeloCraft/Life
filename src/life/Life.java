@@ -6,11 +6,14 @@
 package life;
 
 import Commands.CommandsConsole;
+import Database.Database;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -85,6 +88,39 @@ public class Life {
             }
         }
         
+        Database db = new Database();
+        ResultSet querryResult;
+        try {
+            db.sendQuerryWithResult("SELECT password FROM pas");
+        } catch (SQLException ex) {
+            System.out.println("Don't get password from bd, erase all bd and create again? Y/n");
+            System.out.print("-> ");
+            if ("Y".equals(in.readLine())) {
+                commandsConsole.getCommand("initBd".split(" ")[0]).DoAction(null);
+            } else {
+                return;
+            }
+        }
+        querryResult = db.sendQuerryWithResult("SELECT password FROM pas");
+        String password = "";
+        while (querryResult.next()) 
+        {
+            password = querryResult.getString("password");
+        }
+
+        if (!password.equals("nopassword") && !password.equals("")) 
+        {
+            System.out.println("Input password");
+            System.out.print("-> ");
+            String inputPassword = in.readLine();
+            if (!inputPassword.equals(password))
+            {
+                System.out.println("Incorect password");
+                in.readLine();
+                return;
+            }
+        }
+        
         System.out.println("Type ? for get help");
                 
         System.out.print("-> ");
@@ -92,15 +128,20 @@ public class Life {
         
         while(!"exit".equals(inputCommand))
         {
+            try
+            {
             ArrayList<Object> arg = new ArrayList<>();
                 for (int i = 1; i < inputCommand.split(" ").length; i++)
                 {
                     arg.add(inputCommand.split(" ")[i]);
                 }
-                commandsConsole.getCommand(inputCommand.split(" ")[0]).DoAction(arg.toArray());
+                commandsConsole.getCommand(inputCommand.split(" ")[0]).DoAction(arg.toArray());            
+            }catch(Exception ex)
+            {
+                System.out.println("Error runtime! \n" + ex.getMessage());
+            }
             System.out.print("-> ");
             inputCommand = in.readLine();
         }
-    }
-    
+    }    
 }

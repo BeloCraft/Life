@@ -19,8 +19,7 @@ public class Help extends Command
         this.commands = commands;
     }
      private final String startNew = "new";
-    private final String erase = "clear";
-    private final String changePassword = "changePSWD";
+    private final String erase = "clear";    
     private final String setPassword = "setPSWD";
     private final String continueTeach = "continue";
     private final String help = "?";
@@ -30,12 +29,11 @@ public class Help extends Command
     {
         System.out.println(commands[0] + " - Create new session");
         System.out.println(commands[1] + " - Erase all information in database. Put"+
-                "param 'AI', if need clear database AI");
-        System.out.println(commands[2] + " - Change password (ex. changePSWD lastPSWD newPSWD)");
-        System.out.println(commands[3] + " - Set password (ex. setPSWD Password");
-        System.out.println(commands[4] + " - Continue last session");
-        System.out.println(commands[5] + " - Create base table in bd");
-        System.out.println(commands[6] + " - Get help");
+                "param 'AI', if need clear database AI");        
+        System.out.println(commands[2] + " - Set password (ex. setPSWD Password");
+        System.out.println(commands[3] + " - Continue last session");
+        System.out.println(commands[4] + " - Create base table in bd");
+        System.out.println(commands[5] + " - Get help");
         return null;
     }
 }
