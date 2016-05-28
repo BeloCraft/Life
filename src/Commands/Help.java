@@ -18,11 +18,6 @@ public class Help extends Command
     {
         this.commands = commands;
     }
-     private final String startNew = "new";
-    private final String erase = "clear";    
-    private final String setPassword = "setPSWD";
-    private final String continueTeach = "continue";
-    private final String help = "?";
     
     @Override
     public Object DoAction(Object[] params)
