@@ -18,8 +18,11 @@ public class StartNew extends Command{
     @Override
     public Object DoAction(Object[] params) throws ClassNotFoundException, SQLException, InterruptedException
     {
+        Database db = new Database();
+        db.sendQuerry("DELETE FROM cells WHERE 1=1");
+        db.sendQuerry("INSERT INTO cells VALUES (' ',0,0,0,0,0)");
         GameLoop gameLoop = new GameLoop(new Database());
         gameLoop.run();
-        return null;
+        return true;
     }
 }
