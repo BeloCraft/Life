@@ -17,6 +17,7 @@ public class CommandsConsole {
     private final String continueTeach = "continue";
     private final String help = "?";
     private final String initalBd = "initBd";
+    private final String screen = "screen";
     
     public Command getCommand(String command)
     {
@@ -32,10 +33,12 @@ public class CommandsConsole {
                 return new ContinueTeach();
             case help:
                 String[] commands = {startNew,erase,setPassword,
-                continueTeach,initalBd,help};
+                continueTeach,initalBd,help,screen};
                 return new Help(commands);
             case initalBd:
                 return new InitalBd();
+            case screen:
+                return new Screen();
         }        
         return null;
     }

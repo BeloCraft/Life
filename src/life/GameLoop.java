@@ -6,10 +6,13 @@
 package life;
 
 import Database.Database;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,15 +23,19 @@ import java.util.logging.Logger;
 public class GameLoop {
     
     private final Database database;
-    private Boolean stop;    
+    private final int OFFSET;
+    private final int SIZE_ARRAY;
+    private Boolean stop;          
     
-    public GameLoop (Database database)
+    public GameLoop (Database database) throws ClassNotFoundException, SQLException
     {
         this.stop = false;
-        this.database = database;
+        this.database = database; 
+        SIZE_ARRAY = 100;
+        OFFSET = SIZE_ARRAY/2;
     }
     
-    public void run() throws InterruptedException
+    public void run(int maxgen) throws InterruptedException, ClassNotFoundException, SQLException, IOException
     {               
         Thread inputs = new Thread(() -> {
                 while(!stop)
@@ -45,10 +52,91 @@ public class GameLoop {
                 }
             });
         inputs.start();
+                
+        Rules rules = new Rules(OFFSET);                
+        ArrayList<Cell> cells = new ArrayList<>();
+        Cell[][] map;
+        ArrayList<Cell> newGenCells;
         
         while(!stop)
-        {
+        {      
+            LocalTime starth = LocalTime.now();
+            int nMax = -1;            
+            ResultSet sendQuerryWithResult = database.sendQuerryWithResult("SELECT * FROM cells");                            
+            map = new Cell[SIZE_ARRAY][SIZE_ARRAY];     
             
+            while(sendQuerryWithResult.next())
+            {
+                String type = sendQuerryWithResult.getString("type");
+                int hungry = sendQuerryWithResult.getInt("hungry");
+                int older = sendQuerryWithResult.getInt("older");
+                int x = sendQuerryWithResult.getInt("x");
+                int y = sendQuerryWithResult.getInt("y");
+                int n = sendQuerryWithResult.getInt("n");
+                
+                if (nMax < n) nMax = n;
+                
+                Cell newCell = new Cell(type,hungry,older,x+OFFSET,y+OFFSET,n);
+                cells.add(newCell);  
+                map[x+OFFSET][y+OFFSET] = newCell;
+            }              
+                                
+            newGenCells = applyRules(cells,rules,map);                
+            saveHistoryGen(database,cells);               
+            
+            LocalTime start = LocalTime.now();
+            
+            String querry = "INSERT INTO cells VALUES ";            
+            for (Cell cell : newGenCells)
+            {
+                querry += "('" + cell.getType() + "'," + cell.getHungry() +
+                    "," + cell.getOlder() + "," + (cell.getX()-OFFSET) + ","
+                    + (cell.getY()-OFFSET) + "," + cell.getN() + "),";
+            }            
+            LocalTime end = LocalTime.now();
+            
+            if (cells.size() > 0) {
+                database.sendQuerry(querry.substring(0, querry.length() - 1) + ";");
+            }                        
+
+            System.out.println("Gen: " + (nMax+1));
+            database.sendQuerry("DELETE FROM cells WHERE n<"+(nMax+1));
+            if (maxgen > 0)
+            {
+                database.sendQuerry("DELETE FROM history WHERE n<((SELECT MAX(n) FROM history)-"+maxgen+")");
+            }            
+            System.out.println(newGenCells.size());
+            
+            newGenCells.clear();
+            cells.clear();
+            
+            LocalTime endh = LocalTime.now();           
+            System.out.println("Общее: " + (endh.getSecond() - starth.getSecond()));
+            System.out.println("Занято: " + (end.getSecond() - start.getSecond()));
         }
+    }
+   
+    private void saveHistoryGen(Database dbhistory, ArrayList<Cell> cells) throws SQLException {
+        if (cells.size() > 0) {
+            String querry = "INSERT INTO history VALUES ";
+            for (Cell cell : cells) {
+                querry += "('" + cell.getType() + "',"
+                        + (cell.getX() - OFFSET) + "," + (cell.getY() - OFFSET)
+                        + "," + cell.getN() + "),";
+            }
+            dbhistory.sendQuerry(querry.substring(0, querry.length() - 1) + ";");
+        }
+    }
+
+    private ArrayList<Cell> applyRules(ArrayList<Cell> cells, Rules rules, Cell[][] map) {
+
+        ArrayList<Cell> newGen = new ArrayList<>();
+        for (Cell cell : cells)
+        {
+            rules.generateMap(newGen,cell,map);
+            rules.lifeCell(newGen,cell,map);  
+        }       
+        
+        return newGen;
     }
 }
