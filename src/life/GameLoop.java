@@ -26,15 +26,17 @@ import java.util.logging.Logger;
 public class GameLoop {
     
     private final Database database;
-    private Boolean stop;            
+    private Boolean stop;           
+    private final Database dbhistory;
     
-    public GameLoop (Database database) throws SocketException
+    public GameLoop (Database database) throws SocketException, ClassNotFoundException, SQLException
     {
         this.stop = false;
-        this.database = database;        
+        this.database = database;  
+        dbhistory = new Database();
     }
     
-    public void run() throws InterruptedException, ClassNotFoundException, SQLException, IOException
+    public void run(int maxgen) throws InterruptedException, ClassNotFoundException, SQLException, IOException
     {               
         Thread inputs = new Thread(() -> {
                 while(!stop)
@@ -52,14 +54,12 @@ public class GameLoop {
             });
         inputs.start();
                 
-        Rules rules = new Rules();
-        
-        Database dbhistory = new Database();
+        Rules rules = new Rules();                
         
         while(!stop)
         {
-            String reciveData = "";
-            ResultSet sendQuerryWithResult = database.sendQuerryWithResult("SELECT * FROM cells");
+            int nMax = -1;            
+            ResultSet sendQuerryWithResult = database.sendQuerryWithResult("SELECT * FROM cells");            
             while(sendQuerryWithResult.next())
             {
                 String type = sendQuerryWithResult.getString("type");
@@ -69,15 +69,16 @@ public class GameLoop {
                 int y = sendQuerryWithResult.getInt("y");
                 int n = sendQuerryWithResult.getInt("n");
                 
-                rules.generateMap(database, type, hungry, older, x, y, n);
-                rules.lifeCell(database, type, hungry, older, x, y, n);       
+                if (nMax < n) nMax = n;
                 
-                reciveData += type + ":" + hungry + ":" + older + ":" + x + ":"
-                        + y + ":" + n + ";";
+                rules.generateMap(dbhistory, type, hungry, older, x, y, n);
+                rules.lifeCell(dbhistory, type, hungry, older, x, y, n);                                       
                 
                 dbhistory.sendQuerry("INSERT INTO history VALUES ('"+type+"',"+x+","
-                        +y+ ","+n+")");
-            }                                                   
+                        +y+ ","+n+")");                                
+            }                          
+            database.sendQuerry("DELETE FROM cells WHERE n<>"+(nMax+1));
+            dbhistory.sendQuerry("DELETE FROM history WHERE n<((SELECT MAX(n) FROM history)-"+maxgen+")");
         }
     }
 }

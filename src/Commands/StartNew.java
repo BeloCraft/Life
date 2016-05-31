@@ -25,7 +25,7 @@ public class StartNew extends Command{
         db.sendQuerry("INSERT INTO cells VALUES (' ',0,0,0,0,0)");
         db.sendQuerry("INSERT INTO cells VALUES ('X',0,0,1,1,0)");
         GameLoop gameLoop = new GameLoop(new Database());
-        gameLoop.run();
+        gameLoop.run(Integer.valueOf(params[0].toString()));
         return true;
     }
 }
