@@ -16,6 +16,8 @@ import java.util.Random;
  */
 public class Rules {
     
+    public final int MAX_X = 40;
+    public final int MAX_Y = 40;
     public final int START_FOOD_WOLF = 10;
     public final int START_FOOD_SVEN = 10;
     public final int START_FOOD_GRASS = 10;
@@ -23,33 +25,51 @@ public class Rules {
     public void generateMap(Database db, String type, int hungry, int older,
             int x, int y, int n) throws SQLException, ClassNotFoundException
     {
-        ResultSet rCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x+1) + "AND n="+n);
-                                   
+        ResultSet rCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x+1) + 
+                "AND y="+ y);
+        
+        
         if (!rCell.next())
         {
-            createCell(db,type,hungry,older,x+1,y,n);
+            if (x < MAX_X)
+            {
+                createCell(db,type,hungry,older,x+1,y,n);
+            }
         }
                
-        ResultSet lCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x-1) + "AND n="+n);
+        ResultSet lCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x-1) +
+                "AND y=" + y);
         
         if (!lCell.next())
         {
-            createCell(db,type,hungry,older,x-1,y,n);
+            if (x > -MAX_X)
+            {
+                createCell(db,type,hungry,older,x-1,y,n);
+            }
         }
         
-        ResultSet dCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y-1) + "AND n="+n);
+        ResultSet dCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y-1)+
+                "AND x=" + x);
         
         if (!dCell.next())
         {
-            createCell(db,type,hungry,older,x,y-1,n);
+            if (y > -MAX_Y)
+            {
+                createCell(db,type,hungry,older,x,y-1,n);
+            }
         }
         
-        ResultSet uCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y+1) + "AND n="+n);
+        ResultSet uCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y+1) +
+                "AND x=" + x);
         
         if (!uCell.next())
         {
-            createCell(db,type,hungry,older,x,y+1,n);
+            if (y < MAX_Y)
+            {
+                createCell(db,type,hungry,older,x,y+1,n);
+            }
         }
+                       
     }
     
     private void createCell(Database db, String type,int hungry, int older, int x, int y, int n) throws SQLException
@@ -71,14 +91,45 @@ public class Rules {
             "',"+startFood+",0,"+x+","+y+","+(n+1)+")");
     }
     
-    private String getNextCell(String type, int hungry, int older, int x, int y, int n)
-    {
+    private String getNextCell(String type, int hungry, int older, int x, int y, int n) {
         Random rnd = new Random();
-        int r = rnd.nextInt(100);
-        if (r == 0) return "X";
-        if (r >= 1 && r <= 5) return "S";
-        if (r > 5 && r < 10) return "R";
-        if (r >= 10 && r < 20) return "H";
+        int r = rnd.nextInt(1000);
+
+        int r2 = rnd.nextInt(1000);
+        
+        switch(type)
+        {
+            case "X":
+                if (r2 < 100)
+                    return "X";
+                break;
+            case "R":
+                if (r2 < 500)
+                    return "R";
+                break;
+            case "S":
+                if (r2 < 300)
+                    return "S";
+                break;
+            case "H":
+                if (r2 < 700)
+                    return "H";
+                break;
+        }
+        
+        if (r == 0) {
+            return "X";
+        }
+        if (r >= 1 && r <= 5) {
+            return "R";
+        }
+        if (r > 5 && r < 10) {
+            return "S";
+        }
+        if (r >= 10 && r < 150) {
+            return "H";
+        }
+        
         return " ";
     }
     

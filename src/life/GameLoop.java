@@ -77,8 +77,12 @@ public class GameLoop {
                 dbhistory.sendQuerry("INSERT INTO history VALUES ('"+type+"',"+x+","
                         +y+ ","+n+")");                                
             }                          
-            database.sendQuerry("DELETE FROM cells WHERE n<>"+(nMax+1));
-            dbhistory.sendQuerry("DELETE FROM history WHERE n<((SELECT MAX(n) FROM history)-"+maxgen+")");
+            System.out.println("Gen: " + (nMax+1));
+            database.sendQuerry("DELETE FROM cells WHERE n<"+(nMax+1));
+            if (maxgen > 0)
+            {
+                dbhistory.sendQuerry("DELETE FROM history WHERE n<((SELECT MAX(n) FROM history)-"+maxgen+")");
+            }
         }
     }
 }
