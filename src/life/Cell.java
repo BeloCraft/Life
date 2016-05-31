@@ -11,58 +11,44 @@ package life;
  */
 public class Cell {
     
-    private char type;
-    private int hungry;
-    private int older;
-    private long x;
-    private long y;
-    
-    public Cell(char type, int hungry, int older, int x, int y)
+    private final String type;
+    private final int hungry;
+    private final int older;
+    private final int x;
+    private final int y;
+    private final int n;
+
+    public Cell(String type, int hungry, int older, int x, int y, int n)
     {
         this.type = type;
         this.hungry = hungry;
         this.older = older;
         this.x = x;
         this.y = y;
+        this.n = n;
     }
-
-    public char getType() {
+ 
+    public String getType() {
         return type;
-    }
-
-    public void setType(char type) {
-        this.type = type;
     }
 
     public int getHungry() {
         return hungry;
     }
 
-    public void setHungry(int hungry) {
-        this.hungry = hungry;
-    }
-
     public int getOlder() {
         return older;
     }
 
-    public void setOlder(int older) {
-        this.older = older;
-    }
-
-    public long getX() {
+    public int getX() {
         return x;
     }
 
-    public void setX(long x) {
-        this.x = x;
-    }
-
-    public long getY() {
+    public int getY() {
         return y;
     }
 
-    public void setY(long y) {
-        this.y = y;
-    }     
+    public int getN() {
+        return n;
+    }    
 }

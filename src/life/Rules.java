@@ -5,9 +5,7 @@
  */
 package life;
 
-import Database.Database;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -16,66 +14,63 @@ import java.util.Random;
  */
 public class Rules {
     
-    public final int MAX_X = 40;
-    public final int MAX_Y = 40;
+    public final int MAX_X = 20;
+    public final int MAX_Y = 20;
     public final int START_FOOD_WOLF = 10;
     public final int START_FOOD_SVEN = 10;
     public final int START_FOOD_GRASS = 10;
-     
-    public void generateMap(Database db, String type, int hungry, int older,
-            int x, int y, int n) throws SQLException, ClassNotFoundException
+    public final int OFFSET;
+    
+    public Rules(int offset)
     {
-        ResultSet rCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x+1) + 
-                "AND y="+ y);
-        
-        
-        if (!rCell.next())
+        this.OFFSET = offset;
+    }
+     
+    public ArrayList<Cell> generateMap(ArrayList<Cell> newGenCells, Cell cell, Cell[][] map)
+    {         
+        if (map[cell.getX()+1][cell.getY()] == null)
         {
-            if (x < MAX_X)
-            {
-                createCell(db,type,hungry,older,x+1,y,n);
-            }
-        }
-               
-        ResultSet lCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE x="+(x-1) +
-                "AND y=" + y);
-        
-        if (!lCell.next())
-        {
-            if (x > -MAX_X)
-            {
-                createCell(db,type,hungry,older,x-1,y,n);
-            }
-        }
-        
-        ResultSet dCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y-1)+
-                "AND x=" + x);
-        
-        if (!dCell.next())
-        {
-            if (y > -MAX_Y)
-            {
-                createCell(db,type,hungry,older,x,y-1,n);
-            }
-        }
-        
-        ResultSet uCell = db.sendQuerryWithResult("SELECT type,hungry,older,x,y,n FROM cells WHERE y="+(y+1) +
-                "AND x=" + x);
-        
-        if (!uCell.next())
-        {
-            if (y < MAX_Y)
-            {
-                createCell(db,type,hungry,older,x,y+1,n);
+            if (cell.getX()-OFFSET < MAX_X)
+            {                
+                createCell(newGenCells,cell,cell.getX()+1,cell.getY());
+                map[cell.getX()+1][cell.getY()] = newGenCells.get(newGenCells.size()-1);
             }
         }
                        
+        if (map[cell.getX()-1][cell.getY()] == null)
+        {
+            if (cell.getX()-OFFSET > -MAX_X)
+            {                
+                createCell(newGenCells,cell,cell.getX()-1,cell.getY());
+                map[cell.getX()-1][cell.getY()] = newGenCells.get(newGenCells.size()-1);
+            }
+        }                
+        
+        if (map[cell.getX()][cell.getY()-1] == null)
+        {
+            if (cell.getY()-OFFSET > -MAX_Y)
+            {                
+                createCell(newGenCells,cell,cell.getX(),cell.getY()-1);
+                map[cell.getX()][cell.getY()-1] = newGenCells.get(newGenCells.size()-1);
+            }
+        }                
+        
+        if (map[cell.getX()][cell.getY()+1] == null)
+        {
+            if (cell.getY()-OFFSET < MAX_Y)
+            {                
+                createCell(newGenCells,cell,cell.getX(),cell.getY()+1);
+                map[cell.getX()][cell.getY()+1] = newGenCells.get(newGenCells.size()-1);
+            }
+        }
+         
+        return newGenCells;
     }
     
-    private void createCell(Database db, String type,int hungry, int older, int x, int y, int n) throws SQLException
+    private ArrayList<Cell> createCell(ArrayList<Cell> newGen, Cell cell, int x, int y)
     {
         int startFood = 0;        
-        switch(type)
+        switch(cell.getType())
         {
             case "X":
                 startFood = START_FOOD_WOLF;
@@ -86,9 +81,10 @@ public class Rules {
             case "H":
                 startFood = START_FOOD_GRASS;
                 break;
-        }
-        db.sendQuerry("INSERT INTO cells VALUES ('"+getNextCell(type,hungry,older,x,y,n)+
-            "',"+startFood+",0,"+x+","+y+","+(n+1)+")");
+        }        
+        newGen.add(new Cell(getNextCell(cell.getType(),cell.getHungry(),cell.getOlder(),cell.getX(),cell.getY(),cell.getN()),
+                startFood,0,x,y,cell.getN()+1));
+        return newGen;
     }
     
     private String getNextCell(String type, int hungry, int older, int x, int y, int n) {
@@ -133,9 +129,11 @@ public class Rules {
         return " ";
     }
     
-    public void lifeCell(Database db, String type, int hungry, int older,
-            int x, int y, int n) throws SQLException
-    {
-        db.sendQuerry("INSERT INTO cells VALUES ('"+type+"',"+hungry+","+older+","+x+","+y+","+(n+1)+")");
+    public ArrayList<Cell> lifeCell(ArrayList<Cell> newGen, Cell cell, Cell[][] map)
+    {        
+        newGen.add(new Cell(cell.getType(),cell.getHungry(),cell.getOlder(),
+                cell.getX(), cell.getY(),cell.getN()+1));
+        return newGen;
     }
+        
 }
