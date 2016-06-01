@@ -82,9 +82,7 @@ public class GameLoop {
             }              
                                 
             newGenCells = applyRules(cells,rules,map);                
-            saveHistoryGen(database,cells);               
-            
-            LocalTime start = LocalTime.now();
+            saveHistoryGen(database,cells);                                       
             
             String querry = "INSERT INTO cells VALUES ";            
             for (Cell cell : newGenCells)
@@ -92,27 +90,33 @@ public class GameLoop {
                 querry += "('" + cell.getType() + "'," + cell.getHungry() +
                     "," + cell.getOlder() + "," + (cell.getX()-OFFSET) + ","
                     + (cell.getY()-OFFSET) + "," + cell.getN() + "),";
-            }            
-            LocalTime end = LocalTime.now();
+            }                        
             
             if (cells.size() > 0) {
                 database.sendQuerry(querry.substring(0, querry.length() - 1) + ";");
             }                        
-
-            System.out.println("Gen: " + (nMax+1));
+            
             database.sendQuerry("DELETE FROM cells WHERE n<"+(nMax+1));
             if (maxgen > 0)
             {
                 database.sendQuerry("DELETE FROM history WHERE n<((SELECT MAX(n) FROM history)-"+maxgen+")");
             }            
-            System.out.println(newGenCells.size());
+            long sizeCells = newGenCells.size();
             
             newGenCells.clear();
             cells.clear();
             
             LocalTime endh = LocalTime.now();           
-            System.out.println("Общее: " + (endh.getSecond() - starth.getSecond()));
-            System.out.println("Занято: " + (end.getSecond() - start.getSecond()));
+            /*ResultSet dbSize = database.sendQuerryWithResult("SELECT pg_database_size('life');");
+            long size = 0;
+            while(dbSize.next())
+            {
+                size = dbSize.getLong("pg_database_size");
+            }
+            System.out.println("Gen: " + (nMax+1) + " Time: " + (endh.getSecond() - starth.getSecond())+
+                    " Cells:" + sizeCells + " Size: " + (size/1000000) + "mb");            */
+            System.out.println("Gen: " + (nMax+1) + " Time: " + (endh.getSecond() - starth.getSecond())+
+                    " Cells:" + sizeCells);            
         }
     }
    
@@ -128,13 +132,13 @@ public class GameLoop {
         }
     }
 
-    private ArrayList<Cell> applyRules(ArrayList<Cell> cells, Rules rules, Cell[][] map) {
+    private ArrayList<Cell> applyRules(ArrayList<Cell> cells, Rules rules, Cell[][] map) throws SQLException {
 
         ArrayList<Cell> newGen = new ArrayList<>();
         for (Cell cell : cells)
         {
             rules.generateMap(newGen,cell,map);
-            rules.lifeCell(newGen,cell,map);  
+            rules.lifeCell(database, newGen,cell,map);  
         }       
         
         return newGen;

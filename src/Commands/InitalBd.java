@@ -74,7 +74,8 @@ public class InitalBd extends Command {
                 + "hungry int,"
                 + "older int,"
                 + "action smallint,"
-                + "map varchar(100)"
+                + "map varchar(500),"
+                + "rang int"
                 + ");");        
         System.out.println("Table AI created");
         database.sendQuerry("CREATE TABLE Pas"

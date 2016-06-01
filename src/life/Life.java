@@ -27,7 +27,7 @@ public class Life {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        
+                       
         System.out.println("Welcome in the LIFE!");  
         
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

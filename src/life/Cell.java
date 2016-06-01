@@ -12,8 +12,8 @@ package life;
 public class Cell {
     
     private final String type;
-    private final int hungry;
-    private final int older;
+    private int hungry;
+    private int older;
     private final int x;
     private final int y;
     private final int n;
@@ -26,6 +26,14 @@ public class Cell {
         this.x = x;
         this.y = y;
         this.n = n;
+    }
+    
+    public void setHungry(int hungry) {
+        this.hungry = hungry;
+    }
+
+    public void setOlder(int older) {
+        this.older = older;
     }
  
     public String getType() {
