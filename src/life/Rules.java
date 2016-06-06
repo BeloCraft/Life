@@ -164,7 +164,7 @@ public class Rules {
 
         for (int j = 0; j < patternsRang.size(); j++) {
             for (int i = 0; i < patternsRang.get(j).getValue(); i++) {
-                selected += j;
+                selected += patternsRang.get(j).getKey();
             }
         }
 
@@ -233,12 +233,17 @@ public class Rules {
                     newGen.remove(map[nx][ny]);
                     newGen.add(new Cell(" ",0,0,cell.getX(),cell.getY(),cell.getN()+1));
                     map[cell.getX()][cell.getY()] = newGen.get(newGen.size()-1);    
+                    canGo = true;                    
+                }else
+                {
                     canGo = true;
                 }
             }
         }
         
-        Rang += (cell.getHungry() - cell.getHungry()) - cell.getOlder();
+        Rang += (cell.getHungry() - hungry) - cell.getOlder();
+        cell.setOlder(cell.getOlder()-1);
+        cell.setHungry(cell.getHungry()-1);
         
         return new Pair<>(Rang,canGo);
     }

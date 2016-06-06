@@ -26,6 +26,7 @@ public class GameLoop {
     private final int OFFSET;
     private final int SIZE_ARRAY;
     private Boolean stop;          
+    private int n;
     
     public GameLoop (Database database) throws ClassNotFoundException, SQLException
     {
@@ -33,6 +34,7 @@ public class GameLoop {
         this.database = database; 
         SIZE_ARRAY = 100;
         OFFSET = SIZE_ARRAY/2;
+        n = 0;
     }
     
     public void run(int maxgen) throws InterruptedException, ClassNotFoundException, SQLException, IOException
@@ -106,17 +108,28 @@ public class GameLoop {
             newGenCells.clear();
             cells.clear();
             
-            LocalTime endh = LocalTime.now();           
-            /*ResultSet dbSize = database.sendQuerryWithResult("SELECT pg_database_size('life');");
-            long size = 0;
-            while(dbSize.next())
-            {
-                size = dbSize.getLong("pg_database_size");
+            LocalTime endh = LocalTime.now();
+            try {
+                ResultSet dbSize = database.sendQuerryWithResult("SELECT pg_database_size('life');");
+                long size = 0;
+                while (dbSize.next()) {
+                    size = dbSize.getLong("pg_database_size");
+                }
+                System.out.println("Gen: " + (nMax + 1) + " Time: " + (endh.getSecond() - starth.getSecond())
+                        + " Cells:" + sizeCells + " Size: " + (size / 1000000) + "mb");
+            } catch (Exception ex) {
+                System.out.println("Gen: " + (nMax + 1) + " Time: " + (endh.getSecond() - starth.getSecond())
+                        + " Cells:" + sizeCells);
             }
-            System.out.println("Gen: " + (nMax+1) + " Time: " + (endh.getSecond() - starth.getSecond())+
-                    " Cells:" + sizeCells + " Size: " + (size/1000000) + "mb");            */
-            System.out.println("Gen: " + (nMax+1) + " Time: " + (endh.getSecond() - starth.getSecond())+
-                    " Cells:" + sizeCells);            
+            
+            if (n > 150) {
+                database.sendQuerry("VACUUM FULL history");
+                database.sendQuerry("VACUUM FULL ai");
+                database.sendQuerry("VACUUM FULL cells");
+                database.sendQuerry("VACUUM FULL pas");                
+                n = 0;
+            }
+            n++;
         }
     }
    
